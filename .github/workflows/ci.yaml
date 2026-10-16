@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest discover -s tests -v
+        env:
+          PYTHONPATH: src
+      - run: python scripts/check_release.py
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose with synthetic configuration
+        run: |
+          mkdir -p secrets
+          touch secrets/bafang_account secrets/bafang_password secrets/bafang_token secrets/endurain_api_key
+          docker compose --profile sync config --quiet
+          BAFANG_DEVICE_ID=synthetic-device docker compose -f compose.token.yaml --profile sync config --quiet
+          docker compose -f deploy/komodo/compose.yaml config --quiet
+      - run: docker build -t momas-sync:ci .
+      - name: Check installed commands without network access
+        run: |
+          docker run --rm --network none momas-sync:ci --help
+          docker run --rm --network none --entrypoint momas-worker momas-sync:ci --help

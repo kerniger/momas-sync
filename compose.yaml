@@ -1,0 +1,84 @@
+services:
+  bafang-poc:
+    build: .
+    profiles: [poc]
+    user: "${LOCAL_UID:-10001}:${LOCAL_GID:-10001}"
+    environment:
+      BAFANG_AUTH_MODE: login
+      BAFANG_ACCOUNT_FILE: /run/secrets/bafang_account
+      BAFANG_PASSWORD_FILE: /run/secrets/bafang_password
+      BAFANG_DEVICE_ID: ${BAFANG_DEVICE_ID:-}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
+      DATA_DIR: /data
+    secrets: [bafang_account, bafang_password]
+    volumes:
+      - ./data:/data
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+  bafang-sync:
+    build: .
+    profiles: [sync]
+    user: "${LOCAL_UID:-10001}:${LOCAL_GID:-10001}"
+    entrypoint: ["momas-worker"]
+    command: ["serve"]
+    environment:
+      BAFANG_AUTH_MODE: login
+      BAFANG_ACCOUNT_FILE: /run/secrets/bafang_account
+      BAFANG_PASSWORD_FILE: /run/secrets/bafang_password
+      BAFANG_DEVICE_ID: ${BAFANG_DEVICE_ID:-}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
+      DATA_DIR: /data/sync
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-1800}
+      HTTP_TIMEOUT_SECONDS: ${HTTP_TIMEOUT_SECONDS:-30}
+      SYNC_MAX_PAGES: ${SYNC_MAX_PAGES:-1000}
+      BAFANG_PAGE_SIZE: ${BAFANG_PAGE_SIZE:-20}
+      RETRY_ATTEMPTS: ${RETRY_ATTEMPTS:-4}
+      RETRY_BASE_SECONDS: ${RETRY_BASE_SECONDS:-2}
+      RETRY_CAP_SECONDS: ${RETRY_CAP_SECONDS:-60}
+      HEALTH_STALE_SECONDS: ${HEALTH_STALE_SECONDS:-3900}
+      ENDURAIN_ENABLED: ${ENDURAIN_ENABLED:-false}
+      ENDURAIN_URL: ${ENDURAIN_URL:-}
+      ENDURAIN_API_KEY_FILE: /run/secrets/endurain_api_key
+    secrets: [bafang_account, bafang_password, endurain_api_key]
+    volumes:
+      - ./data:/data
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    stop_grace_period: 150s
+    healthcheck:
+      test: ["CMD", "momas-worker", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  bafang-endurain-test:
+    extends:
+      service: bafang-sync
+    profiles: [integration]
+    command: ["endurain-test"]
+    restart: "no"
+    stop_grace_period: 150s
+    environment:
+      ENDURAIN_URL: ${ENDURAIN_URL:-}
+      ENDURAIN_API_KEY_FILE: /run/secrets/endurain_api_key
+    secrets:
+      - bafang_account
+      - bafang_password
+      - endurain_api_key
+    healthcheck:
+      disable: true
+
+secrets:
+  bafang_account:
+    file: ./secrets/bafang_account
+  bafang_password:
+    file: ./secrets/bafang_password
+  endurain_api_key:
+    file: ./secrets/endurain_api_key

@@ -1,0 +1,30 @@
+# Runtime state and private deployment material
+/data/
+/secrets/
+/private/
+.env
+.env.*
+!.env.example
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.pem
+*.key
+*.p12
+*.apk
+*.xapk
+
+# Python and build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.DS_Store

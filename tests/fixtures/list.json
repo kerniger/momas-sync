@@ -1,0 +1,1 @@
+{"code":200,"data":{"records":[{"id":"anonymous-001","startTime":"2026-10-09 12:00:00","endTime":"2026-10-09 12:10:00","trip":4.123,"duration":600,"avgPower":120,"avgCadence":70,"startTotalEnergy":90,"endTotalEnergy":85}],"total":1,"current":1,"size":20,"pages":1}}

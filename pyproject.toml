@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "momas-sync"
+version = "0.4.0"
+description = "Self-hosted Momas Red / Bafang ride archive and Endurain synchronization"
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+momas-sync = "momas_sync.cli:main"
+momas-worker = "momas_sync.service:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

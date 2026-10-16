@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="synthetic" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"><trk><trkseg>
+<trkpt lat="0" lon="0"><time>2026-10-09T18:00:00Z</time><extensions><power>120</power><gpxtpx:TrackPointExtension><gpxtpx:cad>70</gpxtpx:cad></gpxtpx:TrackPointExtension></extensions></trkpt>
+<trkpt lat="0.001" lon="0.001"><time>2026-10-09T18:10:00Z</time></trkpt>
+</trkseg></trk></gpx>
